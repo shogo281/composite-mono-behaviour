@@ -1,0 +1,8 @@
+{
+  "name": "com.kuro.composite-mono-behaviour",
+  "displayName": "CompositeMonoBehaviour",
+  "version": "1.0.0",
+  "unity": "2019.4",
+  "description": "",
+  "dependencies": {}
+}
