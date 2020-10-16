@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace CompositeMonoBehaviour
+namespace CompositeMonoBehaviourSystem
 {
     /// <summary>
     /// CompositeMonoBehaviourに追加できるオブジェクト
@@ -11,19 +11,8 @@ namespace CompositeMonoBehaviour
     /// </summary>
     public interface ICompositeObject
     {
-        [Obsolete]
-        void OnAwakeComposite();
-        [Obsolete]
-        void OnEnableCompsite();
-        [Obsolete]
-        void OnStartComposite();
-        void OnFixedUpdateComposite();
-        void OnUpdateComposite();
-        void OnLateUpdateComposite();
-        void OnGUIComposite();
-        [Obsolete]
-        void OnDisableComposite();
-        [Obsolete]
-        void OnDestroyComposite();
+        void OnFixedUpdate();
+        void OnUpdate();
+        void OnLateUpdate();
     }
 }
