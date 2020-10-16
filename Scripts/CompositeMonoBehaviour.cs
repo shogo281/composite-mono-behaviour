@@ -122,12 +122,12 @@ namespace CompositeMonoBehaviourSystem
 
         private void Foreach(Action<ICompositeObject> action)
         {
-            if (isDisposed == false)
+            if (isDisposed == true)
             {
                 return;
             }
 
-            for (int i = compositeObjectList.Count - 1; i > -1; i++)
+            for (int i = compositeObjectList.Count - 1; i >= 0; i--)
             {
                 var obj = compositeObjectList[i];
 
@@ -144,7 +144,9 @@ namespace CompositeMonoBehaviourSystem
 #endif
 
                 }
+
                 action.Invoke(obj);
+
             }
         }
     }
