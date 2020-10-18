@@ -11,6 +11,12 @@ namespace CompositeMonoBehaviourSystem
     /// </summary>
     public interface ICompositeObject
     {
+        /// <summary>
+        /// 更新の優先順位
+        /// </summary>
+        /// <value></value>
+        int UpdateOrder { get; }
+
         void OnFixedUpdate();
         void OnUpdate();
         void OnLateUpdate();
