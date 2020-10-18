@@ -12,12 +12,19 @@ namespace CompositeMonoBehaviourSystem
     {
         private readonly List<ICompositeObject> compositeObjectList = new List<ICompositeObject>();
         private bool isDisposed = false;
+        private bool isRegistered = false;
 
         /// <summary>
-        /// nullが含まれていれば自動で削除するか
+        /// nullが含まれていれば自動で削除する
         /// </summary>
         /// <value></value>
         public bool IsAutoNullRemove { get; set; } = true;
+
+        /// <summary>
+        /// Registerが呼ばれたら自動で更新前にソートする
+        /// </summary>
+        /// <value></value>
+        public bool IsAutoSort { get; set; } = true;
 
         public void FixedUpdate()
         {
@@ -107,11 +114,24 @@ namespace CompositeMonoBehaviourSystem
             compositeObjectList.Clear();
         }
 
+        /// <summary>
+        /// 昇順にソートする
+        /// </summary>
+        public void Sort()
+        {
+            compositeObjectList.Sort((a, b) => b.UpdateOrder - a.UpdateOrder);
+        }
+
         private void Foreach(Action<ICompositeObject> action)
         {
             if (isDisposed == true)
             {
                 return;
+            }
+
+            if (IsAutoSort == true && isRegistered == true)
+            {
+                Sort();
             }
 
             for (int i = compositeObjectList.Count - 1; i >= 0; i--)
@@ -133,7 +153,6 @@ namespace CompositeMonoBehaviourSystem
                 }
 
                 action.Invoke(obj);
-
             }
         }
     }
