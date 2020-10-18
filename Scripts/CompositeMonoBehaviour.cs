@@ -8,12 +8,8 @@ namespace CompositeMonoBehaviourSystem
     /// <summary>
     /// 更新を一箇所にまとめる
     /// </summary>
-    public class CompositeMonoBehaviour : MonoBehaviour, IDisposable
+    public class CompositeMonoBehaviour : IDisposable
     {
-        /// <summary>
-        /// OnGUIが呼ばれたときのイベント
-        /// </summary>
-        public event Action OnGUICalled = null;
         private readonly List<ICompositeObject> compositeObjectList = new List<ICompositeObject>();
         private bool isDisposed = false;
 
@@ -23,32 +19,24 @@ namespace CompositeMonoBehaviourSystem
         /// <value></value>
         public bool IsAutoNullRemove { get; set; } = true;
 
-        private void FixedUpdate()
+        public void FixedUpdate()
         {
             Foreach(compositeObject => compositeObject.OnFixedUpdate());
         }
 
-        private void Update()
+        public void Update()
         {
             Foreach(compositeObject => compositeObject.OnUpdate());
         }
 
-        private void LateUpdate()
+        public void LateUpdate()
         {
             Foreach(compositeObject => compositeObject.OnLateUpdate());
         }
 
-        private void OnDestroy()
+        public void OnDestroy()
         {
             Dispose();
-        }
-
-        private void OnGUI()
-        {
-            if (OnGUICalled != null)
-            {
-                OnGUICalled.Invoke();
-            }
         }
 
         /// <summary>
@@ -117,7 +105,6 @@ namespace CompositeMonoBehaviourSystem
 
             isDisposed = true;
             compositeObjectList.Clear();
-            OnGUICalled = null;
         }
 
         private void Foreach(Action<ICompositeObject> action)
