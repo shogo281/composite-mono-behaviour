@@ -11,12 +11,6 @@ namespace CompositeMonoBehaviourSystem
         private bool isDisposed = false;
 
         /// <summary>
-        /// nullが含まれていれば自動で削除する
-        /// </summary>
-        /// <value></value>
-        public bool IsAutoNullRemove { get; set; } = true;
-
-        /// <summary>
         /// Registerが呼ばれたら自動で更新前にソートする
         /// </summary>
         /// <value></value>
@@ -128,11 +122,6 @@ namespace CompositeMonoBehaviourSystem
             if (IsAutoSort == true)
             {
                 Sort();
-            }
-
-            if (IsAutoNullRemove == true)
-            {
-                compositedObjectList.RemoveAll(null);
             }
 
             foreach (var obj in compositedObjectList.ToArray())
