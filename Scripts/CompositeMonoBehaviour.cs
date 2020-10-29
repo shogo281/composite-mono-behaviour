@@ -5,14 +5,10 @@ using System;
 
 namespace CompositeMonoBehaviourSystem
 {
-    /// <summary>
-    /// 更新を一箇所にまとめる
-    /// </summary>
     public class CompositeMonoBehaviour : IDisposable
     {
-        private readonly List<ICompositeObject> compositeObjectList = new List<ICompositeObject>();
+        private readonly List<ICompositedObject> compositedObjectList = new List<ICompositedObject>();
         private bool isDisposed = false;
-        private bool isRegistered = false;
 
         /// <summary>
         /// nullが含まれていれば自動で削除する
@@ -50,7 +46,7 @@ namespace CompositeMonoBehaviourSystem
         /// 登録する
         /// </summary>
         /// <param name="compositeObject"></param>
-        public void Register(ICompositeObject compositeObject)
+        public void Register(ICompositedObject compositeObject)
         {
             if (isDisposed == true)
             {
@@ -65,7 +61,7 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
-            if (compositeObjectList.Contains(compositeObject) == true)
+            if (compositedObjectList.Contains(compositeObject) == true)
             {
 #if UNITY_EDITOR
                 Debug.LogError("すでに追加されているICompositeObjectです。");
@@ -73,7 +69,7 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
-            compositeObjectList.Add(compositeObject);
+            compositedObjectList.Add(compositeObject);
         }
 
         /// <summary>
@@ -81,7 +77,7 @@ namespace CompositeMonoBehaviourSystem
         /// </summary>
         /// <param name="compositeObject"></param>
         /// <returns></returns>
-        public bool Unregister(ICompositeObject compositeObject)
+        public bool Unregister(ICompositedObject compositeObject)
         {
 
             if (isDisposed == true)
@@ -97,7 +93,7 @@ namespace CompositeMonoBehaviourSystem
                 return false;
             }
 
-            return compositeObjectList.Remove(compositeObject);
+            return compositedObjectList.Remove(compositeObject);
         }
 
         /// <summary>
@@ -111,7 +107,7 @@ namespace CompositeMonoBehaviourSystem
             }
 
             isDisposed = true;
-            compositeObjectList.Clear();
+            compositedObjectList.Clear();
         }
 
         /// <summary>
@@ -119,37 +115,33 @@ namespace CompositeMonoBehaviourSystem
         /// </summary>
         public void Sort()
         {
-            compositeObjectList.Sort((a, b) => b.UpdateOrder - a.UpdateOrder);
+            compositedObjectList.Sort((a, b) => b.UpdateOrder - a.UpdateOrder);
         }
 
-        private void Foreach(Action<ICompositeObject> action)
+        private void Foreach(Action<ICompositedObject> action)
         {
             if (isDisposed == true)
             {
                 return;
             }
 
-            if (IsAutoSort == true && isRegistered == true)
+            if (IsAutoSort == true)
             {
                 Sort();
             }
 
-            for (int i = compositeObjectList.Count - 1; i >= 0; i--)
+            if (IsAutoNullRemove == true)
             {
-                var obj = compositeObjectList[i];
+                compositedObjectList.RemoveAll(null);
+            }
 
+            foreach (var obj in compositedObjectList.ToArray())
+            {
                 if (obj == null)
                 {
-                    if (IsAutoNullRemove == true)
-                    {
-                        compositeObjectList.RemoveAt(i);
-                        continue;
-                    }
-
 #if UNITY_EDITOR
                     Debug.LogError("nullが含まれています。");
 #endif
-
                 }
 
                 action.Invoke(obj);
