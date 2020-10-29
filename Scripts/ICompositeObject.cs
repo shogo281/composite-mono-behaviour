@@ -9,7 +9,7 @@ namespace CompositeMonoBehaviourSystem
     /// CompositeMonoBehaviourに追加できるオブジェクト
     /// ライフサイクルは通常のMonoBehaviourと同じ
     /// </summary>
-    public interface ICompositeObject
+    public interface ICompositedObject
     {
         /// <summary>
         /// 更新の優先順位
