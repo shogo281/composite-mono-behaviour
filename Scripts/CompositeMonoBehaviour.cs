@@ -89,14 +89,14 @@ namespace CompositeMonoBehaviourSystem
                 return false;
             }
 
-            var isRemove = compositedObjectList.Remove(compositeObject);
+            var canRemove = compositedObjectList.Contains(compositeObject);
 
-            if (unregisterCompositedList.Contains(compositeObject) == false && isRemove == true)
+            if (unregisterCompositedList.Contains(compositeObject) == false && canRemove == true)
             {
                 unregisterCompositedList.Add(compositeObject);
             }
 
-            return isRemove == true;
+            return canRemove == true;
         }
 
         /// <summary>
