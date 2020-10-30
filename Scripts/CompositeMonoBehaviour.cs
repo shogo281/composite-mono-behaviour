@@ -155,7 +155,7 @@ namespace CompositeMonoBehaviourSystem
                 compositedObjectList.Remove(unregisterObj);
             }
 
-            compositedObjectList.Clear();
+            unregisterCompositedList.Clear();
         }
     }
 }
