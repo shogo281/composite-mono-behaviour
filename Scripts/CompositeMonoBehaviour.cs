@@ -8,6 +8,7 @@ namespace CompositeMonoBehaviourSystem
     public class CompositeMonoBehaviour : IDisposable
     {
         private readonly List<ICompositedObject> compositedObjectList = new List<ICompositedObject>();
+        private readonly List<ICompositedObject> unregisterCompositedList = new List<ICompositedObject>();
         private bool isDisposed = false;
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace CompositeMonoBehaviourSystem
             }
 
             compositedObjectList.Add(compositeObject);
+            unregisterCompositedList.Remove(compositeObject);
         }
 
         /// <summary>
@@ -87,7 +89,14 @@ namespace CompositeMonoBehaviourSystem
                 return false;
             }
 
-            return compositedObjectList.Remove(compositeObject);
+            var isRemove = compositedObjectList.Remove(compositeObject);
+
+            if (unregisterCompositedList.Contains(compositeObject) == false && isRemove == true)
+            {
+                unregisterCompositedList.Add(compositeObject);
+            }
+
+            return isRemove == true;
         }
 
         /// <summary>
@@ -109,7 +118,7 @@ namespace CompositeMonoBehaviourSystem
         /// </summary>
         public void Sort()
         {
-            compositedObjectList.Sort((a, b) => b.UpdateOrder - a.UpdateOrder);
+            compositedObjectList.Sort((a, b) => a.UpdateOrder - b.UpdateOrder);
         }
 
         private void Foreach(Action<ICompositedObject> action)
@@ -124,7 +133,7 @@ namespace CompositeMonoBehaviourSystem
                 Sort();
             }
 
-            foreach (var obj in compositedObjectList.ToArray())
+            foreach (var obj in compositedObjectList)
             {
                 if (obj == null)
                 {
@@ -133,8 +142,20 @@ namespace CompositeMonoBehaviourSystem
 #endif
                 }
 
+                if (unregisterCompositedList.Contains(obj) == true)
+                {
+                    continue;
+                }
+
                 action.Invoke(obj);
             }
+
+            foreach (var unregisterObj in unregisterCompositedList)
+            {
+                compositedObjectList.Remove(unregisterObj);
+            }
+
+            compositedObjectList.Clear();
         }
     }
 }
