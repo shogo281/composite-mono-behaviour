@@ -7,17 +7,26 @@ namespace CompositeMonoBehaviourSystem
 {
     public class CompositeMonoBehaviour : IDisposable
     {
-        private readonly List<ICompositedObject> compositedObjectList = new List<ICompositedObject>();
-        private readonly List<ICompositedObject> unregisterCompositedList = new List<ICompositedObject>();
-        private readonly List<ICompositedObject> registerCompositedList = new List<ICompositedObject>();
+        private readonly List<ICompositedObject> unregisterCompositedList = null;
+        private readonly List<ICompositedObject> registerCompositedList = null;
+        private readonly Dictionary<int, List<ICompositedObject>> compositedDictionary = null;
         private bool isDisposed = false;
-        private bool isRequestSort = false;
 
         /// <summary>
-        /// Registerが呼ばれたら自動で更新前にソートする
+        /// コンストラクタ
         /// </summary>
-        /// <value></value>
-        public bool IsAutoSort { get; set; } = true;
+        /// <param name="capacity"></param>
+        public CompositeMonoBehaviour(int capacity = 1)
+        {
+            registerCompositedList = new List<ICompositedObject>();
+            unregisterCompositedList = new List<ICompositedObject>();
+            compositedDictionary = new Dictionary<int, List<ICompositedObject>>();
+
+            for (int i = 0; i < capacity; i++)
+            {
+                compositedDictionary.Add(i, new List<ICompositedObject>());
+            }
+        }
 
         public void FixedUpdate()
         {
@@ -27,16 +36,13 @@ namespace CompositeMonoBehaviourSystem
             }
 
             Register();
-            UpdateSort();
 
-            foreach (var obj in compositedObjectList)
+            foreach (var pair in compositedDictionary)
             {
-                if (unregisterCompositedList.Contains(obj) == true)
+                foreach (var value in pair.Value)
                 {
-                    continue;
+                    value.OnFixedUpdate();
                 }
-
-                obj.OnFixedUpdate();
             }
 
             Unregister();
@@ -50,16 +56,13 @@ namespace CompositeMonoBehaviourSystem
             }
 
             Register();
-            UpdateSort();
 
-            foreach (var obj in compositedObjectList)
+            foreach (var pair in compositedDictionary)
             {
-                if (unregisterCompositedList.Contains(obj) == true)
+                foreach (var value in pair.Value)
                 {
-                    continue;
+                    value.OnFixedUpdate();
                 }
-
-                obj.OnUpdate();
             }
 
             Unregister();
@@ -71,18 +74,14 @@ namespace CompositeMonoBehaviourSystem
             {
                 return;
             }
-
             Register();
-            UpdateSort();
 
-            foreach (var obj in compositedObjectList)
+            foreach (var pair in compositedDictionary)
             {
-                if (unregisterCompositedList.Contains(obj) == true)
+                foreach (var value in pair.Value)
                 {
-                    continue;
+                    value.OnFixedUpdate();
                 }
-
-                obj.OnLateUpdate();
             }
 
             Unregister();
@@ -112,7 +111,7 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
-            if (compositedObjectList.Contains(compositeObject) == true)
+            if (compositedDictionary[compositeObject.UpdateOrder].Contains(compositeObject) == true)
             {
 #if UNITY_EDITOR
                 Debug.LogError("すでに追加されているICompositeObjectです。");
@@ -145,7 +144,7 @@ namespace CompositeMonoBehaviourSystem
                 return false;
             }
 
-            var canRemove = compositedObjectList.Contains(compositeObject);
+            var canRemove = compositedDictionary[compositeObject.UpdateOrder].Contains(compositeObject);
 
             registerCompositedList.Remove(compositeObject);
 
@@ -168,44 +167,17 @@ namespace CompositeMonoBehaviourSystem
             }
 
             isDisposed = true;
-            compositedObjectList.Clear();
-        }
-
-        /// <summary>
-        /// 昇順にソートする
-        /// </summary>
-        public void RequestSort()
-        {
-            isRequestSort = true;
-        }
-
-        private void Sort()
-        {
-            compositedObjectList.Sort((a, b) => a.UpdateOrder - b.UpdateOrder);
-        }
-
-        private void UpdateSort()
-        {
-            if (IsAutoSort == true)
-            {
-                Sort();
-                return;
-            }
-
-            if (isRequestSort == true)
-            {
-                Sort();
-                isRequestSort = false;
-            }
+            compositedDictionary.Clear();
         }
 
         private void Register()
         {
             foreach (var obj in registerCompositedList)
             {
-                if (compositedObjectList.Contains(obj) == false)
+                var order = obj.UpdateOrder;
+                if (compositedDictionary[order].Contains(obj) == false)
                 {
-                    compositedObjectList.Add(obj);
+                    compositedDictionary[order].Add(obj);
                 }
             }
 
@@ -216,7 +188,7 @@ namespace CompositeMonoBehaviourSystem
         {
             foreach (var unregisterObj in unregisterCompositedList)
             {
-                compositedObjectList.Remove(unregisterObj);
+                compositedDictionary[unregisterObj.UpdateOrder].Remove(unregisterObj);
             }
 
             unregisterCompositedList.Clear();
