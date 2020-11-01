@@ -9,6 +9,7 @@ namespace CompositeMonoBehaviourSystem
     {
         private readonly List<ICompositedObject> compositedObjectList = new List<ICompositedObject>();
         private readonly List<ICompositedObject> unregisterCompositedList = new List<ICompositedObject>();
+        private readonly List<ICompositedObject> registerCompositedList = new List<ICompositedObject>();
         private bool isDisposed = false;
 
         /// <summary>
@@ -64,7 +65,7 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
-            compositedObjectList.Add(compositeObject);
+            registerCompositedList.Add(compositeObject);
             unregisterCompositedList.Remove(compositeObject);
         }
 
@@ -90,6 +91,8 @@ namespace CompositeMonoBehaviourSystem
             }
 
             var canRemove = compositedObjectList.Contains(compositeObject);
+
+            registerCompositedList.Remove(compositeObject);
 
             if (unregisterCompositedList.Contains(compositeObject) == false && canRemove == true)
             {
@@ -128,10 +131,21 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
+            foreach (var obj in registerCompositedList)
+            {
+                if (compositedObjectList.Contains(obj) == false)
+                {
+                    compositedObjectList.Add(obj);
+                }
+            }
+
+            registerCompositedList.Clear();
+
             if (IsAutoSort == true)
             {
                 Sort();
             }
+
 
             foreach (var obj in compositedObjectList)
             {
