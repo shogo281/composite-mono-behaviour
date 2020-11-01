@@ -61,7 +61,7 @@ namespace CompositeMonoBehaviourSystem
             {
                 foreach (var value in pair.Value)
                 {
-                    value.OnFixedUpdate();
+                    value.OnUpdate();
                 }
             }
 
@@ -80,7 +80,7 @@ namespace CompositeMonoBehaviourSystem
             {
                 foreach (var value in pair.Value)
                 {
-                    value.OnFixedUpdate();
+                    value.OnLateUpdate();
                 }
             }
 
