@@ -11,6 +11,7 @@ namespace CompositeMonoBehaviourSystem
         private readonly List<ICompositedObject> unregisterCompositedList = new List<ICompositedObject>();
         private readonly List<ICompositedObject> registerCompositedList = new List<ICompositedObject>();
         private bool isDisposed = false;
+        private bool isRequestSort = false;
 
         /// <summary>
         /// Registerが呼ばれたら自動で更新前にソートする
@@ -20,17 +21,71 @@ namespace CompositeMonoBehaviourSystem
 
         public void FixedUpdate()
         {
-            Foreach(compositeObject => compositeObject.OnFixedUpdate());
+            if (isDisposed == true)
+            {
+                return;
+            }
+
+            Register();
+            UpdateSort();
+
+            foreach (var obj in compositedObjectList)
+            {
+                if (unregisterCompositedList.Contains(obj) == true)
+                {
+                    continue;
+                }
+
+                obj.OnFixedUpdate();
+            }
+
+            Unregister();
         }
 
         public void Update()
         {
-            Foreach(compositeObject => compositeObject.OnUpdate());
+            if (isDisposed == true)
+            {
+                return;
+            }
+
+            Register();
+            UpdateSort();
+
+            foreach (var obj in compositedObjectList)
+            {
+                if (unregisterCompositedList.Contains(obj) == true)
+                {
+                    continue;
+                }
+
+                obj.OnUpdate();
+            }
+
+            Unregister();
         }
 
         public void LateUpdate()
         {
-            Foreach(compositeObject => compositeObject.OnLateUpdate());
+            if (isDisposed == true)
+            {
+                return;
+            }
+
+            Register();
+            UpdateSort();
+
+            foreach (var obj in compositedObjectList)
+            {
+                if (unregisterCompositedList.Contains(obj) == true)
+                {
+                    continue;
+                }
+
+                obj.OnLateUpdate();
+            }
+
+            Unregister();
         }
 
         public void OnDestroy()
@@ -119,18 +174,33 @@ namespace CompositeMonoBehaviourSystem
         /// <summary>
         /// 昇順にソートする
         /// </summary>
-        public void Sort()
+        public void RequestSort()
+        {
+            isRequestSort = true;
+        }
+
+        private void Sort()
         {
             compositedObjectList.Sort((a, b) => a.UpdateOrder - b.UpdateOrder);
         }
 
-        private void Foreach(Action<ICompositedObject> action)
+        private void UpdateSort()
         {
-            if (isDisposed == true)
+            if (IsAutoSort == true)
             {
+                Sort();
                 return;
             }
 
+            if (isRequestSort == true)
+            {
+                Sort();
+                isRequestSort = false;
+            }
+        }
+
+        private void Register()
+        {
             foreach (var obj in registerCompositedList)
             {
                 if (compositedObjectList.Contains(obj) == false)
@@ -140,30 +210,10 @@ namespace CompositeMonoBehaviourSystem
             }
 
             registerCompositedList.Clear();
+        }
 
-            if (IsAutoSort == true)
-            {
-                Sort();
-            }
-
-
-            foreach (var obj in compositedObjectList)
-            {
-                if (obj == null)
-                {
-#if UNITY_EDITOR
-                    Debug.LogError("nullが含まれています。");
-#endif
-                }
-
-                if (unregisterCompositedList.Contains(obj) == true)
-                {
-                    continue;
-                }
-
-                action.Invoke(obj);
-            }
-
+        private void Unregister()
+        {
             foreach (var unregisterObj in unregisterCompositedList)
             {
                 compositedObjectList.Remove(unregisterObj);
