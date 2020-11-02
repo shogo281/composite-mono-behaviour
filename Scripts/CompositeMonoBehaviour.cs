@@ -7,7 +7,13 @@ namespace CompositeMonoBehaviourSystem
 {
     public class CompositeMonoBehaviour : IDisposable
     {
-        private readonly List<ICompositedObject> unregisterCompositedList = null;
+        private class UnregisterInfo
+        {
+            public int order = -1;
+            public ICompositedObject compositedObject = null;
+        }
+
+        private readonly List<UnregisterInfo> unregisterCompositedList = null;
         private readonly List<ICompositedObject> registerCompositedList = null;
         private readonly Dictionary<int, List<ICompositedObject>> compositedDictionary = null;
         private bool isDisposed = false;
@@ -19,7 +25,7 @@ namespace CompositeMonoBehaviourSystem
         public CompositeMonoBehaviour(int capacity = 1)
         {
             registerCompositedList = new List<ICompositedObject>();
-            unregisterCompositedList = new List<ICompositedObject>();
+            unregisterCompositedList = new List<UnregisterInfo>();
             compositedDictionary = new Dictionary<int, List<ICompositedObject>>();
 
             for (int i = 0; i < capacity; i++)
@@ -36,16 +42,22 @@ namespace CompositeMonoBehaviourSystem
             }
 
             Register();
+            Unregister();
+
 
             foreach (var pair in compositedDictionary)
             {
                 foreach (var value in pair.Value)
                 {
+                    if (value == null)
+                    {
+                        continue;
+                    }
+
                     value.OnFixedUpdate();
                 }
             }
 
-            Unregister();
         }
 
         public void Update()
@@ -56,16 +68,21 @@ namespace CompositeMonoBehaviourSystem
             }
 
             Register();
+            Unregister();
 
             foreach (var pair in compositedDictionary)
             {
                 foreach (var value in pair.Value)
                 {
+                    if (value == null)
+                    {
+                        continue;
+                    }
+
                     value.OnUpdate();
                 }
             }
 
-            Unregister();
         }
 
         public void LateUpdate()
@@ -75,16 +92,20 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
             Register();
+            Unregister();
 
             foreach (var pair in compositedDictionary)
             {
                 foreach (var value in pair.Value)
                 {
+                    if (value == null)
+                    {
+                        continue;
+                    }
+
                     value.OnLateUpdate();
                 }
             }
-
-            Unregister();
         }
 
         public void OnDestroy()
@@ -120,7 +141,13 @@ namespace CompositeMonoBehaviourSystem
             }
 
             registerCompositedList.Add(compositeObject);
-            unregisterCompositedList.Remove(compositeObject);
+
+            var index = unregisterCompositedList.FindIndex(info => info.compositedObject == compositeObject);
+
+            if (index != -1)
+            {
+                unregisterCompositedList.RemoveAt(index);
+            }
         }
 
         /// <summary>
@@ -130,7 +157,6 @@ namespace CompositeMonoBehaviourSystem
         /// <returns></returns>
         public bool Unregister(ICompositedObject compositeObject)
         {
-
             if (isDisposed == true)
             {
                 return false;
@@ -148,9 +174,13 @@ namespace CompositeMonoBehaviourSystem
 
             registerCompositedList.Remove(compositeObject);
 
-            if (unregisterCompositedList.Contains(compositeObject) == false && canRemove == true)
+            if (unregisterCompositedList.Exists(info => info.compositedObject == compositeObject) == false && canRemove == true)
             {
-                unregisterCompositedList.Add(compositeObject);
+                unregisterCompositedList.Add(new UnregisterInfo()
+                {
+                    order = compositeObject.UpdateOrder,
+                    compositedObject = compositeObject
+                });
             }
 
             return canRemove == true;
@@ -188,7 +218,7 @@ namespace CompositeMonoBehaviourSystem
         {
             foreach (var unregisterObj in unregisterCompositedList)
             {
-                compositedDictionary[unregisterObj.UpdateOrder].Remove(unregisterObj);
+                compositedDictionary[unregisterObj.order].Remove(unregisterObj.compositedObject);
             }
 
             unregisterCompositedList.Clear();
