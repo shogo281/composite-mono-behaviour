@@ -206,13 +206,18 @@ namespace CompositeMonoBehaviourSystem
             }
 
             isDisposed = true;
-            compositedArray = null;
+
+            for (int i = 0; i < compositedArray.Length; i++)
+            {
+                compositedArray[i].Clear();
+            }
         }
 
         private void Register()
         {
-            foreach (var obj in registerCompositedList)
+            for (int i = 0; i < registerCompositedList.Count; i++)
             {
+                var obj = registerCompositedList[i];
                 var order = obj.UpdateOrder;
                 if (compositedArray[order].Contains(obj) == false)
                 {
@@ -225,8 +230,9 @@ namespace CompositeMonoBehaviourSystem
 
         private void Unregister()
         {
-            foreach (var unregisterObj in unregisterCompositedList)
+            for (int i = 0; i < unregisterCompositedList.Count; i++)
             {
+                var unregisterObj = unregisterCompositedList[i];
                 compositedArray[unregisterObj.order].Remove(unregisterObj.compositedObject);
             }
 
