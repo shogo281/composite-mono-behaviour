@@ -76,11 +76,6 @@ namespace CompositeMonoBehaviourSystem
             {
                 var list = compositedDictionary[i];
 
-                if (list.Count == 0)
-                {
-                    continue;
-                }
-
                 for (int j = 0; j < list.Count; j++)
                 {
                     var item = list[j];
@@ -107,11 +102,6 @@ namespace CompositeMonoBehaviourSystem
             for (int i = 0; i < compositedDictionary.Count; i++)
             {
                 var list = compositedDictionary[i];
-
-                if (list.Count == 0)
-                {
-                    continue;
-                }
 
                 for (int j = 0; j < list.Count; j++)
                 {
