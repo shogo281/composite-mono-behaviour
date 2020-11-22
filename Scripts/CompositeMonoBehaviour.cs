@@ -44,20 +44,22 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-
-            foreach (var pair in compositedDictionary)
+            for (int i = 0; i < compositedDictionary.Count; i++)
             {
-                foreach (var value in pair.Value)
+                var list = compositedDictionary[i];
+
+                for (int j = 0; j < list.Count; j++)
                 {
-                    if (value == null)
+                    var item = list[j];
+
+                    if (j == null)
                     {
                         continue;
                     }
 
-                    value.OnFixedUpdate();
+                    item.OnFixedUpdate();
                 }
             }
-
         }
 
         public void Update()
@@ -70,19 +72,22 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            foreach (var pair in compositedDictionary)
+            for (int i = 0; i < compositedDictionary.Count; i++)
             {
-                foreach (var value in pair.Value)
+                var list = compositedDictionary[i];
+
+                for (int j = 0; j < list.Count; j++)
                 {
-                    if (value == null)
+                    var item = list[j];
+
+                    if (j == null)
                     {
                         continue;
                     }
 
-                    value.OnUpdate();
+                    item.OnUpdate();
                 }
             }
-
         }
 
         public void LateUpdate()
@@ -94,16 +99,20 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            foreach (var pair in compositedDictionary)
+            for (int i = 0; i < compositedDictionary.Count; i++)
             {
-                foreach (var value in pair.Value)
+                var list = compositedDictionary[i];
+
+                for (int j = 0; j < list.Count; j++)
                 {
-                    if (value == null)
+                    var item = list[j];
+
+                    if (j == null)
                     {
                         continue;
                     }
 
-                    value.OnLateUpdate();
+                    item.OnLateUpdate();
                 }
             }
         }
