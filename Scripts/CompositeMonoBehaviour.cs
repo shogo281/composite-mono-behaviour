@@ -44,7 +44,7 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            for (int i = 0; i < compositedArray.Count; i++)
+            for (int i = 0; i < compositedArray.Length; i++)
             {
                 var list = compositedArray[i];
 
@@ -72,7 +72,7 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            for (int i = 0; i < compositedArray.Count; i++)
+            for (int i = 0; i < compositedArray.Length; i++)
             {
                 var list = compositedArray[i];
 
@@ -99,7 +99,7 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            for (int i = 0; i < compositedArray.Count; i++)
+            for (int i = 0; i < compositedArray.Length; i++)
             {
                 var list = compositedArray[i];
 
