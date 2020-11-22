@@ -206,7 +206,7 @@ namespace CompositeMonoBehaviourSystem
             }
 
             isDisposed = true;
-            compositedArray.Clear();
+            compositedArray = null;
         }
 
         private void Register()
