@@ -3,34 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace CompositeMonoBehaviourSystem
+namespace CB
 {
-    public class CompositeMonoBehaviour : IDisposable
+    public class CompositeBehaviour : IDisposable
     {
         private class UnregisterInfo
         {
             public int order = -1;
-            public ICompositedObject compositedObject = null;
+            public IBehaviour compositedObject = null;
         }
 
-        private readonly List<UnregisterInfo> unregisterCompositedList = null;
-        private readonly List<ICompositedObject> registerCompositedList = null;
-        private readonly List<ICompositedObject>[] compositedArray = null;
+        private readonly List<UnregisterInfo> unregisterCompositeList = null;
+        private readonly List<IBehaviour> registerCompositeList = null;
+        private readonly List<IBehaviour>[] compositeArray = null;
         private bool isDisposed = false;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="capacity"></param>
-        public CompositeMonoBehaviour(int capacity = 1)
+        public CompositeBehaviour(int capacity = 1)
         {
-            registerCompositedList = new List<ICompositedObject>();
-            unregisterCompositedList = new List<UnregisterInfo>();
-            compositedArray = new List<ICompositedObject>[capacity];
+            registerCompositeList = new List<IBehaviour>();
+            unregisterCompositeList = new List<UnregisterInfo>();
+            compositeArray = new List<IBehaviour>[capacity];
 
             for (int i = 0; i < capacity; i++)
             {
-                compositedArray[i] = new List<ICompositedObject>();
+                compositeArray[i] = new List<IBehaviour>();
             }
         }
 
@@ -44,19 +44,13 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            for (int i = 0; i < compositedArray.Length; i++)
+            for (int i = 0; i < compositeArray.Length; i++)
             {
-                var list = compositedArray[i];
+                var list = compositeArray[i];
 
                 for (int j = 0; j < list.Count; j++)
                 {
                     var item = list[j];
-
-                    if (j == null)
-                    {
-                        continue;
-                    }
-
                     item.OnFixedUpdate();
                 }
             }
@@ -72,19 +66,13 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            for (int i = 0; i < compositedArray.Length; i++)
+            for (int i = 0; i < compositeArray.Length; i++)
             {
-                var list = compositedArray[i];
+                var list = compositeArray[i];
 
                 for (int j = 0; j < list.Count; j++)
                 {
                     var item = list[j];
-
-                    if (j == null)
-                    {
-                        continue;
-                    }
-
                     item.OnUpdate();
                 }
             }
@@ -99,34 +87,23 @@ namespace CompositeMonoBehaviourSystem
             Register();
             Unregister();
 
-            for (int i = 0; i < compositedArray.Length; i++)
+            for (int i = 0; i < compositeArray.Length; i++)
             {
-                var list = compositedArray[i];
+                var list = compositeArray[i];
 
                 for (int j = 0; j < list.Count; j++)
                 {
                     var item = list[j];
-
-                    if (j == null)
-                    {
-                        continue;
-                    }
-
                     item.OnLateUpdate();
                 }
             }
-        }
-
-        public void OnDestroy()
-        {
-            Dispose();
         }
 
         /// <summary>
         /// 登録する
         /// </summary>
         /// <param name="compositeObject"></param>
-        public void Register(ICompositedObject compositeObject)
+        public void Register(IBehaviour compositeObject)
         {
             if (isDisposed == true)
             {
@@ -141,7 +118,7 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
-            if (compositedArray[compositeObject.UpdateOrder].Contains(compositeObject) == true)
+            if (compositeArray[compositeObject.UpdateOrder].Contains(compositeObject) == true)
             {
 #if UNITY_EDITOR
                 Debug.LogError("すでに追加されているICompositeObjectです。");
@@ -149,13 +126,13 @@ namespace CompositeMonoBehaviourSystem
                 return;
             }
 
-            registerCompositedList.Add(compositeObject);
+            registerCompositeList.Add(compositeObject);
 
-            var index = unregisterCompositedList.FindIndex(info => info.compositedObject == compositeObject);
+            var index = unregisterCompositeList.FindIndex(info => info.compositedObject == compositeObject);
 
             if (index != -1)
             {
-                unregisterCompositedList.RemoveAt(index);
+                unregisterCompositeList.RemoveAt(index);
             }
         }
 
@@ -164,7 +141,7 @@ namespace CompositeMonoBehaviourSystem
         /// </summary>
         /// <param name="compositeObject"></param>
         /// <returns></returns>
-        public bool Unregister(ICompositedObject compositeObject)
+        public bool Unregister(IBehaviour compositeObject)
         {
             if (isDisposed == true)
             {
@@ -179,13 +156,13 @@ namespace CompositeMonoBehaviourSystem
                 return false;
             }
 
-            var canRemove = compositedArray[compositeObject.UpdateOrder].Contains(compositeObject);
+            var canRemove = compositeArray[compositeObject.UpdateOrder].Contains(compositeObject);
 
-            registerCompositedList.Remove(compositeObject);
+            registerCompositeList.Remove(compositeObject);
 
-            if (unregisterCompositedList.Exists(info => info.compositedObject == compositeObject) == false && canRemove == true)
+            if (unregisterCompositeList.Exists(info => info.compositedObject == compositeObject) == false && canRemove == true)
             {
-                unregisterCompositedList.Add(new UnregisterInfo()
+                unregisterCompositeList.Add(new UnregisterInfo()
                 {
                     order = compositeObject.UpdateOrder,
                     compositedObject = compositeObject
@@ -207,36 +184,49 @@ namespace CompositeMonoBehaviourSystem
 
             isDisposed = true;
 
-            for (int i = 0; i < compositedArray.Length; i++)
+            for (var i = 0; i < compositeArray.Length; i++)
             {
-                compositedArray[i].Clear();
+                compositeArray[i].Clear();
             }
         }
 
+        /// <summary>
+        /// 登録する
+        /// </summary>
         private void Register()
         {
-            for (int i = 0; i < registerCompositedList.Count; i++)
+            for (var i = 0; i < registerCompositeList.Count; i++)
             {
-                var obj = registerCompositedList[i];
-                var order = obj.UpdateOrder;
-                if (compositedArray[order].Contains(obj) == false)
+                var behaviour = registerCompositeList[i];
+                var order = behaviour.UpdateOrder;
+
+                if (compositeArray[order].Contains(behaviour) == true)
                 {
-                    compositedArray[order].Add(obj);
+                    continue;
+                }
+                compositeArray[order].Add(behaviour);
+                behaviour.OnRegister();
+            }
+
+            registerCompositeList.Clear();
+        }
+
+        /// <summary>
+        /// 登録を解除する
+        /// </summary>
+        private void Unregister()
+        {
+            for (var i = 0; i < unregisterCompositeList.Count; i++)
+            {
+                var unregisterInfo = unregisterCompositeList[i];
+
+                if (compositeArray[unregisterInfo.order].Remove(unregisterInfo.compositedObject) == true)
+                {
+                    unregisterInfo.compositedObject.OnUnregister();
                 }
             }
 
-            registerCompositedList.Clear();
-        }
-
-        private void Unregister()
-        {
-            for (int i = 0; i < unregisterCompositedList.Count; i++)
-            {
-                var unregisterObj = unregisterCompositedList[i];
-                compositedArray[unregisterObj.order].Remove(unregisterObj.compositedObject);
-            }
-
-            unregisterCompositedList.Clear();
+            unregisterCompositeList.Clear();
         }
     }
 }

@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace CompositeMonoBehaviourSystem
+namespace CB
 {
     /// <summary>
-    /// CompositeMonoBehaviourに追加できるオブジェクト
-    /// ライフサイクルは通常のMonoBehaviourと同じ
+    /// CompositeMonoBehaviourに追加する用のインターフェース
     /// </summary>
-    public interface ICompositedObject
+    public interface IBehaviour
     {
         /// <summary>
         /// 更新の優先順位
@@ -20,5 +19,7 @@ namespace CompositeMonoBehaviourSystem
         void OnFixedUpdate();
         void OnUpdate();
         void OnLateUpdate();
+        void OnRegister();
+        void OnUnregister();
     }
 }
